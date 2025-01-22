@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>디자인된 Todo List</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #fdfcfb;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .todo-container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      width: 350px;
+      position: relative;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      color: #4b4b4b;
+      margin-bottom: 5px;
+    }
+
+    .icon-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .icon-container .icon {
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .icon-container .icon:hover {
+      color: #ff6f61;
+    }
+
+    .date {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #ffdd94;
+      color: #4b4b4b;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #ffd36e;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f9f9f9;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      word-wrap: break-word;
+    }
+
+    li.completed {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    .delete-btn, .edit-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      color: #ff6f61;
+      font-size: 18px;
+    }
+
+    .edit-btn {
+      color: #4b9eff;
+      font-size: 18px;
+      margin-right: 10px;
+    }
+
+    .delete-btn:hover {
+      color: #ff5a4d;
+    }
+
+    .edit-btn:hover {
+      color: #327fba;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    .background-decor {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 18px;
+      color: #ffdd94;
+      font-weight: bold;
+      text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="todo-container">
+    <div class="background-decor">✨ TO DO LIST ✨</div>
+    <h1>할 일 목록</h1>
+    <div class="icon-container">
+      <span class="icon">🗑</span>
+      <span class="icon">✏</span>
+    </div>
+    <div class="date" id="current-date"></div>
+    <input type="text" id="todo-input" placeholder="할 일을 입력하세요" />
+    <button id="add-btn">추가</button>
+    <ul id="todo-list"></ul>
+  </div>
+
+  <script>
+    // 요소 참조
+    const addButton = document.getElementById('add-btn');
+    const todoInput = document.getElementById('todo-input');
+    const todoList = document.getElementById('todo-list');
+    const currentDate = document.getElementById('current-date');
+
+    // 오늘의 날짜 표시
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    currentDate.textContent = formattedDate;
+
+    // 할 일 추가 함수
+    function addTodo() {
+      const todoText = todoInput.value.trim();
+      if (todoText === '') return;
+
+      const todoItem = document.createElement('li');
+
+      // 체크박스 생성
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+
+      // 할 일 텍스트 노드
+      const textNode = document.createElement('span');
+      textNode.textContent = todoText;
+
+      // 삭제 버튼 생성
+      const deleteButton = document.createElement('button');
+      deleteButton.innerHTML = '🗑';
+      deleteButton.classList.add('delete-btn');
+
+      // 수정 버튼 생성
+      const editButton = document.createElement('button');
+      editButton.innerHTML = '✏';
+      editButton.classList.add('edit-btn');
+
+      // 체크박스 이벤트 리스너
+      checkbox.addEventListener('change', function() {
+        todoItem.classList.toggle('completed');
+      });
+
+      // 삭제 버튼 이벤트 리스너
+      deleteButton.addEventListener('click', function() {
+        todoList.removeChild(todoItem);
+      });
+
+      // 수정 버튼 이벤트 리스너
+      editButton.addEventListener('click', function() {
+        const newText = prompt('수정할 내용을 입력하세요:', textNode.textContent);
+        if (newText !== null && newText.trim() !== '') {
+          textNode.textContent = newText.trim();
+        }
+      });
+
+      // li 요소에 체크박스, 텍스트, 수정 버튼, 삭제 버튼 추가
+      todoItem.appendChild(checkbox);
+      todoItem.appendChild(textNode);
+      todoItem.appendChild(editButton);
+      todoItem.appendChild(deleteButton);
+
+      // 목록에 항목 추가
+      todoList.appendChild(todoItem);
+
+      // 입력창 초기화
+      todoInput.value = '';
+    }
+
+    // 버튼 클릭 시 할 일 추가
+    addButton.addEventListener('click', addTodo);
+
+    // 엔터키로 할 일 추가 가능
+    todoInput.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        addTodo();
+      }
+    });
+  </script>
+</body>
+</html>
